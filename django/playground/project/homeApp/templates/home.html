@@ -1,13 +1,18 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
+{% block body %}
+{% if user.is_authenticated %}
+<h1>Hello {{user.username}}</h1>
+
+<a href="{% url 'logout_view' %} ">logout</a>
+
+{% else%}
+<h1>Hello world</h1>
+
+
+<a href="{% url 'registerView' %} ">register</a>
+<a href="{% url 'loginView' %} ">login</a>
+
+{% endif %}
+    {% endblock %}
+ 
     
-  </head>
-  <body>
-    <h1>Hello World</h1>
-    <h1>DEMO DATA</h1>
-  </body>
-</html>
+ 
