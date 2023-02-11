@@ -7,8 +7,10 @@ from django.contrib.auth import get_user_model, authenticate, login, logout
 
 
 class CreateNewUser(UserCreationForm):
-    email = forms.EmailField(required=True, label="", widget=forms.TextInput(attrs={'placeholder':'email'}))
-    username = forms.CharField(required=True, label="", widget=forms.TextInput(attrs={'placeholder':'username'}))
+    email = forms.EmailField(required=True, label="", widget=forms.TextInput(
+        attrs={'placeholder':'email'}))
+    username = forms.CharField(required=True, label="", widget=forms.TextInput(
+        attrs={'placeholder':'username'}))
     password1 = forms.CharField(
         required= True,
         label = "",
@@ -51,6 +53,7 @@ def loginView(request):
         
          
     return render(request, "login.html")
+
 
 def logout_view(request):
     logout(request)
