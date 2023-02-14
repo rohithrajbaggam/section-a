@@ -1,10 +1,86 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from rest_framework import views, status 
+from rest_framework import views, status, generics 
 from rest_framework.response import Response
-from .models import BlogDataModel
-from .serializers import BlogDataModelSerializer
+from .models import BlogDataModel, UserDetailsModel
+from .serializers import BlogDataModelSerializer, UserDetailsModelSerializer
 # Create your views here.
+
+class UserDetailsModelGenericAPIView(generics.GenericAPIView):
+    queryset = UserDetailsModel.objects.all()
+    serializer_class = UserDetailsModelSerializer
+
+    def get(self, request):
+        serializer = self.serializer_class(self.queryset.all(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserBlogModelGETGenericAPIView(generics.GenericAPIView):
+    queryset = BlogDataModel.objects.all()
+    serializer_class = BlogDataModelSerializer
+
+    def get(self, request, user_id):
+        query = self.queryset.filter(name__pk=user_id)
+        
+        serializer = self.serializer_class(query, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class BlogModelGenericApiView(generics.GenericAPIView):
+    queryset = BlogDataModel.objects.all()
+    serializer_class = BlogDataModelSerializer
+
+    def get(self, request):
+        querset = self.queryset.all()
+        serializer = self.serializer_class(querset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message" : "Data is inserted"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message" : f"Something went wrong, {serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class BlogModelGenericListCreateView(generics.ListCreateAPIView):
+    queryset = BlogDataModel.objects.all()
+    serializer_class = BlogDataModelSerializer
+
+class BlogModelGETGenericAPIView(generics.GenericAPIView):
+    queryset = BlogDataModel.objects.all()
+    serializer_class = BlogDataModelSerializer
+
+    def get(self, request, id):
+        query = self.queryset.filter(pk=id).last()
+        if not query:
+            return Response({"message" : "Id does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = self.serializer_class(query, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def put(self, request, id):
+        query = self.queryset.filter(pk=id).last()
+        if not query:
+            return Response({"message" : "Id does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(instance=query, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message" : "Data is update"}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id):
+        query = self.queryset.filter(pk=id).last()
+        if not query:
+            return Response({"message" : "Id does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+        query.delete()
+        return Response({"message" : "query was deleted"}, status=status.HTTP_200_OK)
+
+
+
+
+
 def dummyContent(request):
     data = {
         "id" : 1,
