@@ -1,10 +1,41 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from rest_framework import views, status, generics 
+from rest_framework import views, status, generics, filters, pagination
 from rest_framework.response import Response
 from .models import BlogDataModel, UserDetailsModel
 from .serializers import BlogDataModelSerializer, UserDetailsModelSerializer
+import django_filters
+from django_filters import rest_framework
 # Create your views here.
+class BlogDataFilterSet(django_filters.FilterSet):
+    class Meta:
+        model = BlogDataModel
+        fields = ["name", "category"]
+
+class BlogDataGenericListAPIView(generics.ListAPIView):
+    queryset = BlogDataModel.objects.all()
+    serializer_class = BlogDataModelSerializer
+    filter_backends = [rest_framework.DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = BlogDataFilterSet
+    search_fields = ["title", "description", "name__name"]
+    pagination_class = pagination.LimitOffsetPagination
+    # filterset_fields = ["name", "category"]
+
+    # def get_queryset(self):
+    #     queryset = self.queryset.all()
+    #     try:
+    #         # print('self.request.GET["category_title"] : ', self.request.GET["category_title"])
+    #         queryset = queryset.filter(category=self.request.GET["category"])
+    #     except:
+    #         pass 
+    #     try:
+    #         # print('self.request.GET["user_name"] : ', self.request.GET["user_name"])
+    #         queryset = queryset.filter(name__name=self.request.GET["user_name"])
+    #     except:
+    #         pass 
+    #     return queryset 
+
+
 
 class UserDetailsModelGenericAPIView(generics.GenericAPIView):
     queryset = UserDetailsModel.objects.all()
@@ -89,6 +120,12 @@ def dummyContent(request):
         "description" : "Dummy Post"
     }
     return JsonResponse(data)
+
+
+
+
+
+
 
 class BlogDataModelListAPIView(views.APIView):
     def get(self, request):

@@ -1,7 +1,8 @@
-from .views import dummyContent, BlogDataModelListAPIView, BlogDataModelGetAPIView, BlogModelGenericApiView, BlogModelGenericListCreateView, BlogModelGETGenericAPIView, UserBlogModelGETGenericAPIView, UserDetailsModelGenericAPIView
+from .views import dummyContent, BlogDataModelListAPIView, BlogDataModelGetAPIView, BlogModelGenericApiView, BlogModelGenericListCreateView, BlogModelGETGenericAPIView, UserBlogModelGETGenericAPIView, UserDetailsModelGenericAPIView, BlogDataGenericListAPIView
 from django.urls import path 
 
 urlpatterns = [ 
+    path("fiter-blog-list/", BlogDataGenericListAPIView.as_view(), name="BlogDataGenericListAPIView"),
     path("generic-list-create-blog/", BlogModelGenericListCreateView.as_view(), name="BlogModelGenericListCreateView"),
     path("generic-blog-list/", BlogModelGenericApiView.as_view(), name="BlogModelGenericApiView"),
     path("generic-blog-list/<id>/", BlogModelGETGenericAPIView.as_view(), name="BlogModelGETGenericAPIView"),
