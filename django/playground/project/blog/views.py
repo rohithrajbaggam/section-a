@@ -1,17 +1,41 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from rest_framework import views, status, generics, filters, pagination
+from rest_framework import views, status, generics, filters, pagination, permissions, authentication
 from rest_framework.response import Response
 from .models import BlogDataModel, UserDetailsModel
-from .serializers import BlogDataModelSerializer, UserDetailsModelSerializer
+from .serializers import BlogDataModelSerializer, UserDetailsModelSerializer, RegsitrationSerializer
 import django_filters
 from django_filters import rest_framework
+from django.contrib.auth import get_user_model
 # Create your views here.
+
+class RegsitrationGenericAPIView(generics.GenericAPIView):
+    queryset = get_user_model().objects.all()
+    serializer_class = RegsitrationSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            # serializer.save()
+            get_user_model().objects.create(
+                username = request.data["username"],
+                email = request.data["email"],
+                password = request.data["password"],
+            )
+            return Response({"message" : "Data is inserted"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message" : f"Something went wrong, {serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 class BlogDataFilterSet(django_filters.FilterSet):
     class Meta:
         model = BlogDataModel
         fields = ["name", "category"]
 
+"""
+
+"""
 class BlogDataGenericListAPIView(generics.ListAPIView):
     queryset = BlogDataModel.objects.all()
     serializer_class = BlogDataModelSerializer
@@ -19,6 +43,11 @@ class BlogDataGenericListAPIView(generics.ListAPIView):
     filterset_class = BlogDataFilterSet
     search_fields = ["title", "description", "name__name"]
     pagination_class = pagination.LimitOffsetPagination
+    permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = [authentication.BaseAuthentication, authentication.BasicAuthentication, authentication.TokenAuthentication]
+
+
+    
     # filterset_fields = ["name", "category"]
 
     # def get_queryset(self):

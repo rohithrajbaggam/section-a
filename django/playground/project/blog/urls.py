@@ -1,7 +1,13 @@
-from .views import dummyContent, BlogDataModelListAPIView, BlogDataModelGetAPIView, BlogModelGenericApiView, BlogModelGenericListCreateView, BlogModelGETGenericAPIView, UserBlogModelGETGenericAPIView, UserDetailsModelGenericAPIView, BlogDataGenericListAPIView
+from .views import dummyContent, BlogDataModelListAPIView, BlogDataModelGetAPIView, BlogModelGenericApiView, BlogModelGenericListCreateView, BlogModelGETGenericAPIView, UserBlogModelGETGenericAPIView, UserDetailsModelGenericAPIView, BlogDataGenericListAPIView, RegsitrationGenericAPIView
 from django.urls import path 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [ 
+
+
     path("fiter-blog-list/", BlogDataGenericListAPIView.as_view(), name="BlogDataGenericListAPIView"),
     path("generic-list-create-blog/", BlogModelGenericListCreateView.as_view(), name="BlogModelGenericListCreateView"),
     path("generic-blog-list/", BlogModelGenericApiView.as_view(), name="BlogModelGenericApiView"),
@@ -15,4 +21,8 @@ urlpatterns = [
     # path("test-api/<id>", DummyContentAPIView.as_view(), name="DummyContentAPIView"),
 
     # path("first-api/", FirstAPIView.as_view(), name="FirstAPIView" )
+    path("register/", RegsitrationGenericAPIView.as_view(), name="RegsitrationGenericAPIView"),
+    # Jwt Authentication APIS
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

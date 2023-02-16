@@ -1,5 +1,27 @@
 from rest_framework import serializers
 from .models import BlogDataModel, UserDetailsModel
+from django.contrib.auth import get_user_model
+
+
+class RegsitrationSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
+    class Meta:
+        model = get_user_model()
+        fields = ["username", "email", "password", "confirm_password"] 
+    
+    def validate(self, data):
+        if data["password"] != data["confirm_password"]:
+            raise serializers.ValidationError({
+                "message" : "Password does'nt match"
+            })
+        if len(data["password"]) < 8:
+            raise serializers.ValidationError({
+                "message" : "Password must be atleast 8 charaters"
+            })
+        return data 
+        
+    
+
 
 class BlogDataModelSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField(read_only=True)
