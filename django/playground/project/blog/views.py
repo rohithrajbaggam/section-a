@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from rest_framework import views, status, generics, filters, pagination, permissions, authentication
+from rest_framework import views, status, generics, filters, pagination, permissions, authentication, throttling
 from rest_framework.response import Response
 from .models import BlogDataModel, UserDetailsModel
 from .serializers import BlogDataModelSerializer, UserDetailsModelSerializer, RegsitrationSerializer
@@ -8,6 +8,8 @@ import django_filters
 from django_filters import rest_framework
 from django.contrib.auth import get_user_model
 # Create your views here.
+
+
 
 class RegsitrationGenericAPIView(generics.GenericAPIView):
     queryset = get_user_model().objects.all()
@@ -33,6 +35,34 @@ class BlogDataFilterSet(django_filters.FilterSet):
         model = BlogDataModel
         fields = ["name", "category"]
 
+
+# blogs of the login user
+class BlogDataOFMeListAPIView(generics.ListCreateAPIView):
+    queryset = BlogDataModel.objects.all()
+    serializer_class = BlogDataModelSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return super().get_queryset().filter(author=self.request.user)
+    
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user)
+            return Response({"message" : "Data is inserted"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message" : f"Something went wrong, {serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    # def list(self, request):
+    #     # print('request.user -> ', request.user)
+    #     # print('request.user -> ', request.user.username)
+    #     # print('request.user -> ', request.user.email)
+    #     queryset = self.queryset.filter(author=request.user)
+    #     serializer = self.serializer_class(queryset, many=True)
+    #     return Response(serializer.data)
+
+
 """
 
 """
@@ -44,6 +74,7 @@ class BlogDataGenericListAPIView(generics.ListAPIView):
     search_fields = ["title", "description", "name__name"]
     pagination_class = pagination.LimitOffsetPagination
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [throttling.UserRateThrottle, throttling.AnonRateThrottle]
     # authentication_classes = [authentication.BaseAuthentication, authentication.BasicAuthentication, authentication.TokenAuthentication]
 
 
@@ -69,6 +100,7 @@ class BlogDataGenericListAPIView(generics.ListAPIView):
 class UserDetailsModelGenericAPIView(generics.GenericAPIView):
     queryset = UserDetailsModel.objects.all()
     serializer_class = UserDetailsModelSerializer
+    throttle_classes = [ throttling.AnonRateThrottle]
 
     def get(self, request):
         serializer = self.serializer_class(self.queryset.all(), many=True)

@@ -26,17 +26,51 @@ class RegsitrationSerializer(serializers.ModelSerializer):
 class BlogDataModelSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField(read_only=True)
     category_title = serializers.SerializerMethodField(read_only=True)
+    author = serializers.SerializerMethodField(read_only=True)
+    likes = serializers.SerializerMethodField(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = BlogDataModel
         # fields = ["id", "name","user_name", "title", "description", "create_at", "update_at"]
         fields = "__all__"
+        # read_only = ["author", "likes"]
         # exclude = ["id"]
     
+    def get_author(self, obj):
+        try:
+            author = obj.author.username 
+            return author 
+        except:
+            return None 
+
+    def get_name(self, obj):
+        try:
+            author = obj.name.name
+            return author 
+        except:
+            return None 
+
+    def get_likes(self, obj):
+        try:
+            author = obj.likes.all().count()
+            return author 
+        except:
+            return None 
+
     def get_user_name(self, obj):
-        return obj.name.name 
+        try:
+            name =  obj.name.name 
+            return name 
+        except:
+            return None 
 
     def get_category_title(self, obj):
-        return obj.category.title 
+        try:
+            title = obj.category.title 
+            return title 
+        except:
+            return None  
 
 class UserDetailsModelSerializer(serializers.ModelSerializer):
     blog_count = serializers.SerializerMethodField(read_only=True)

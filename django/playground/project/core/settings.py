@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     "blog",
     # third party apps
     "rest_framework",
-    "django_filters"
+    "django_filters",
+    "rest_framework_simplejwt"
 ]
 
 MIDDLEWARE = [
@@ -61,7 +62,15 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 1,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '4/day',
+        'user': '10/day'
+    }
 }
 
 ROOT_URLCONF = "core.urls"
